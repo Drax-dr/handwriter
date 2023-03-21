@@ -356,7 +356,7 @@ class HandWriter(MDApp):
         #immersive_mode()
         navbar_color('#fcfcfc')
         change_statusbar_color('#fcfcfc', 'white')
-        '''
+        
         host = '8.8.8.8'
         port = 53
         timeout = 3
@@ -377,7 +377,7 @@ class HandWriter(MDApp):
 	        )
 	        ]
 	        ).open()
-	        '''
+	        
     def restart(self, obj):
     	restart_app()
     	   
