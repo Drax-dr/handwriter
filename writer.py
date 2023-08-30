@@ -1,33 +1,46 @@
+import os
 import requests
-import time, socket
-import webbrowser as wb
-import os, sys
-from kivy.factory import Factory
-from kivy.lang import Builder
-from kivymd.app import MDApp
+import socket
 import threading
-from kivy.clock import Clock
-from kivymd.uix.label import MDLabel
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty, ColorProperty, ListProperty
-from kivy.core.window import Window
-from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDRectangleFlatButton
-from kivy.metrics import dp
-from kivymd.toast import toast
-from kivy.core.clipboard import Clipboard as cp
-from kivy.utils import get_color_from_hex
-from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.snackbar import Snackbar, BaseSnackbar
-from kvdroid.tools import change_statusbar_color, navbar_color, restart_app, immersive_mode
-from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
-from kivymd.uix.card import MDCard
-from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
-from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
-from kivymd_extensions.akivymd.uix.imageview import AKImageViewer, AKImageViewerItem
-from kivy.uix.boxlayout import BoxLayout
-from kivymd.uix.imagelist import SmartTileWithLabel
-from kivymd.uix.selectioncontrol import MDCheckbox
-from kivymd.uix.dialog import MDDialog
+import time
+import webbrowser as wb
+import sys
 from jnius import autoclass
+from kivy.clock import Clock
+from kivy.core.clipboard import Clipboard as cp
+from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
+from kivy.core.window import Window
+from kivy.lang import Builder
+from kivy.metrics import dp
+from kivy.uix.boxlayout import BoxLayout
+from kivy.utils import get_color_from_hex
+from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDRectangleFlatButton
+from kivymd.uix.label import MDLabel
+from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.textinput import TextInput
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.widget import Widget
+from kivymd.app import MDApp
+from kivymd_extensions.akivymd.uix.imageview import AKImageViewer, AKImageViewerItem
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty, ColorProperty, ListProperty
+from kivymd.toast import toast
+from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
+from kivymd.uix.card import MDCard
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.label import MDLabel
+from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
+from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.navigationdrawer import MDNavigationDrawer
+from kivymd.uix.progressbar import MDProgressBar
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
+from kivymd.uix.snackbar import BaseSnackbar, Snackbar
+from kivymd.uix.spinner import MDSpinner
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.toolbar import MDToolbar
+from kivymd.uix.imagelist import SmartTileWithLabel
 from plyer.platforms.android import activity
 
 kv = """
@@ -304,7 +317,6 @@ MDScreen:
         
 """
 
-
 class ListItemWithCheckbox(OneLineAvatarIconListItem):
     pass
 
@@ -322,11 +334,11 @@ class RightSwitch(IRightBodyTouch, MDSwitch):
 
 class Content(BoxLayout):
     def fname(self):
-	    self.ids.f_name.text = ''
-	    timestr = time.strftime("%Y%m%d%H%M%S")
-	    text = f'IMG_{timestr}'
-	    return text
-	
+        self.ids.f_name.text = ''
+        timestr = time.strftime("%Y%m%d%H%M%S")
+        text = f'IMG_{timestr}'
+        return text
+
 class SContent(BoxLayout):
     pass
 
@@ -337,7 +349,6 @@ class CustomSnackbar(BaseSnackbar):
     text = StringProperty(None)
     icon = StringProperty(None)
     md_bg_color = get_color_from_hex('#4a4fec')
-    #font_size = NumericProperty("15sp")
 
 class Do_Rating(BoxLayout):
     pass
@@ -350,76 +361,75 @@ class HandWriter(MDApp):
         super().__init__(**kwargs)
         Window.bind(on_keyboard=self.Android_back)
         Window.softinput_mode = 'below_target'
-    
+        self.menu = None
+        self.viewer = None
+
     def on_start(self):
-        #self.fps_monitor_start()
-        #immersive_mode()
-        navbar_color('#fcfcfc')
-        change_statusbar_color('#fcfcfc', 'white')
-        
+        self.check_internet()
+
+    def check_internet(self):
         host = '8.8.8.8'
         port = 53
         timeout = 3
         try:
-	        socket.setdefaulttimeout(timeout)
-	        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-	        return True
+            socket.setdefaulttimeout(timeout)
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         except socket.error as ex:
-	        return MDDialog(
-	        title='Network Error',
-	        text='No Internet Connection',
-	        auto_dismiss=False,
-	        buttons=[
-	        MDRaisedButton(
-	        text='RESTART',
-	        on_release=self.restart,
-	        md_bg_color=get_color_from_hex('#4a4fec')
-	        )
-	        ]
-	        ).open()
-	        
-    def restart(self, obj):
-    	restart_app()
-    	   
-    def wait_d(self):
-        self.wt = threading.Thread(target=self.swift)
-        self.wt.start()
-    def swift(self):
-        self.root.ids.ls.clear_widgets()
-        self.root.ids.screen_manager.current = 'images'
-        dirs = os.listdir('.')
+            self.show_network_error_dialog()
 
-        for files in dirs:
-            if files.endswith('.png') or files.endswith('.jpg') or files.endswith('.jpeg'):
-                if len(files) == 0:
-                    self.root.ids.ls.add_widget(
-                        MDLabel(text='No Images Found')
-                    )
-                else:
-                    self.root.ids.ls.add_widget(
-                        SmartTileWithLabel(source=files, text=files, on_release=self.showimg)
-                    )
+    def show_network_error_dialog(self):
+        dialog = MDDialog(
+            title='Network Error',
+            text='No Internet Connection',
+            auto_dismiss=False,
+            buttons=[
+                MDRaisedButton(
+                    text='RESTART',
+                    on_release=self.restart_app,
+                    md_bg_color=get_color_from_hex('#4a4fec')
+                )
+            ]
+        )
+        dialog.open()
 
-    def showimg(self, obj):
-        self.viewer = AKImageViewer()
-        img_dirs = os.listdir('.')
-        for image in img_dirs:
-            if image.endswith('.png'):
-                self.viewer.add_widget(AKImageViewerItem(source=image))
-        self.viewer.open()
+    def restart_app(self, instance):
+        os.execv(sys.executable, ['python'] + sys.argv)
 
     def Android_back(self, instance, keyboard, keycode, text, modifiers):
-
         if keyboard in (1001, 27):
             self.root.ids.screen_manager.transition.direction = 'right'
             self.root.ids.screen_manager.current = 'home'
-
         return True
+
+    def build(self):
+        self.screen = Builder.load_string(kv)
+        items = ['Open file', 'Open PDF', 'About Me']
+        menu_items = [
+            {
+                "text": f'{i}',
+                "on_release": lambda x=f'{i}': self.start_action(x)
+            } for i in items
+        ]
+        self.menu = MDDropdownMenu(
+            items=menu_items,
+            width_mult=4
+        )
+        self.menu.bind(on_release=self.callback_m)
+        return self.screen
+
+    def start_action(self, text_item):
+        self.menu.dismiss()
+        if text_item == 'About Me':
+            wb.open('https://chakradhar-63e72.web.app/')
+
+    def callback_m(self, button):
+        self.menu.caller = button
+        self.menu.open()
 
     def bhome(self):
         self.root.ids.screen_manager.transition.direction = 'right'
         self.root.ids.screen_manager.current = 'home'
-
+        
     def cliptext(self):
         self.root.ids.namee.text = cp.paste()
 
@@ -550,7 +560,7 @@ class HandWriter(MDApp):
         sendIntent = Intent()
         sendIntent.setAction(Intent.ACTION_SEND)
         sendIntent.setType("text/plain")
-        sendIntent.putExtra(Intent.EXTRA_TEXT, string("kivy.org"))
+        sendIntent.putExtra(Intent.EXTRA_TEXT, string("https://github.com/Drax-dr/handwriter"))
         #sendIntent.setPackage("com.facebook.katana")
         activity.startActivity(sendIntent)
 
@@ -590,12 +600,39 @@ class HandWriter(MDApp):
             self.root.ids.namee.line_color_focus = self.theme_cls.primary_light
 
         else:
-            #immersive_mode()
+            immersive_mode()
             navbar_color('#fcfcfc')
             change_statusbar_color('#fcfcfc', 'white')
             self.root.ids.namee.line_color_normal = get_color_from_hex("#000000")
             self.root.ids.namee.line_color_focus = get_color_from_hex("#000000")
             self.theme_cls.theme_style = "Light"
+            
+    def wait_d(self):
+        self.wt = threading.Thread(target=self.swift)
+        self.wt.start()
+    def swift(self):
+        self.root.ids.ls.clear_widgets()
+        self.root.ids.screen_manager.current = 'images'
+        dirs = os.listdir('.')
+
+        for files in dirs:
+            if files.endswith('.png') or files.endswith('.jpg') or files.endswith('.jpeg'):
+                if len(files) == 0:
+                    self.root.ids.ls.add_widget(
+                        MDLabel(text='No Images Found')
+                    )
+                else:
+                    self.root.ids.ls.add_widget(
+                        SmartTileWithLabel(source=files, text=files, on_release=self.showimg)
+                    )
+
+    def showimg(self, obj):
+        self.viewer = AKImageViewer()
+        img_dirs = os.listdir('.')
+        for image in img_dirs:
+            if image.endswith('.png'):
+                self.viewer.add_widget(AKImageViewerItem(source=image))
+        self.viewer.open()
 
     def close(self, obj):
         self.dialog.dismiss()
