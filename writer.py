@@ -546,14 +546,20 @@ class HandWriter(MDApp):
 
     def callback(self):
 
-        string = autoclass('java.lang.String')
-        Intent = autoclass('android.content.Intent')
-        sendIntent = Intent()
-        sendIntent.setAction(Intent.ACTION_SEND)
-        sendIntent.setType("text/plain")
-        sendIntent.putExtra(Intent.EXTRA_TEXT, string("https://github.com/Drax-dr/handwriter"))
-        #sendIntent.setPackage("com.facebook.katana")
-        activity.startActivity(sendIntent)
+        if kivy.utils.platform == "android":
+
+            string = autoclass('java.lang.String')
+            Intent = autoclass('android.content.Intent')
+            sendIntent = Intent()
+            sendIntent.setAction(Intent.ACTION_SEND)
+            sendIntent.setType("text/plain")
+            sendIntent.putExtra(Intent.EXTRA_TEXT, string("https://github.com/Drax-dr/handwriter"))
+            #sendIntent.setPackage("com.facebook.katana")
+            activity.startActivity(sendIntent)
+
+        else:
+            pass
+
 
     def ratings(self):
         self.rating_d = MDDialog(
