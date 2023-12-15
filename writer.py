@@ -5,12 +5,10 @@ import threading
 import time
 import webbrowser as wb
 import sys
-from jnius import autoclass
+import kivy
 from kivy.core.clipboard import Clipboard as cp
-from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.utils import get_color_from_hex
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
@@ -29,7 +27,12 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
 from kivymd.uix.snackbar import BaseSnackbar
 from kivymd.uix.imagelist import SmartTileWithLabel
-from plyer.platforms.android import activity
+
+if kivy.utils.platform == "android":
+    from jnius import autoclass
+    from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
+    from plyer.platforms.android import activity
+
 
 kv = """
 #: import get_color_from_hex kivy.utils.get_color_from_hex
@@ -535,7 +538,7 @@ class HandWriter(MDApp):
         self.menu.dismiss()
         print(text_item)
         if text_item == 'About Me':
-        	wb.open('https://chakradhar-63e72.web.app/')
+            wb.open('https://chakradhar-63e72.web.app/')
 
     def callback_m(self, button):
         self.menu.caller = button
@@ -581,16 +584,18 @@ class HandWriter(MDApp):
 
     def on_checkbox_active(self, checkbox, value):
         if value:
-            navbar_color('#170e15')
-            change_statusbar_color('#170e15', 'black')
+            if kivy.utils.platform == "android":
+                navbar_color('#170e15')
+                change_statusbar_color('#170e15', 'black')
             self.theme_cls.theme_style = "Dark"
             self.root.ids.namee.line_color_normal = self.theme_cls.primary_light
             self.root.ids.namee.line_color_focus = self.theme_cls.primary_light
 
         else:
-            immersive_mode()
-            navbar_color('#fcfcfc')
-            change_statusbar_color('#fcfcfc', 'white')
+            if kivy.utils.platform == "android":
+                immersive_mode()
+                navbar_color('#fcfcfc')
+                change_statusbar_color('#fcfcfc', 'white')
             self.root.ids.namee.line_color_normal = get_color_from_hex("#000000")
             self.root.ids.namee.line_color_focus = get_color_from_hex("#000000")
             self.theme_cls.theme_style = "Light"
