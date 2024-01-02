@@ -1,0 +1,6 @@
+kivymd==0.104.2
+kvdroid
+kivymd_extensions.akivymd
+kivymd_extensions
+plyer
+requests
