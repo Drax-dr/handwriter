@@ -4,3 +4,4 @@ kivymd_extensions.akivymd
 kivymd_extensions
 plyer
 requests
+pyjnius
