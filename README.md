@@ -1,6 +1,7 @@
 Convert your text to hand written text
 
-# Installation
+# Installation And Setup
+
 ```
 git clone https://github.com/Drax-dr/handwriter
 cd handwriter
