@@ -5,18 +5,26 @@ import threading
 import time
 import webbrowser as wb
 import sys
-import kivy
+from jnius import autoclass
+from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard as cp
+from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
 from kivy.core.window import Window
 from kivy.lang import Builder
+from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.utils import get_color_from_hex
-from kivymd.uix.button import MDFlatButton, MDRaisedButton
+from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDRectangleFlatButton
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.textinput import TextInput
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 from kivymd_extensions.akivymd.uix.imageview import AKImageViewer, AKImageViewerItem
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty, ColorProperty, ListProperty
 from kivymd.toast import toast
 from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.card import MDCard
@@ -24,15 +32,16 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.navigationdrawer import MDNavigationDrawer
+from kivymd.uix.progressbar import MDProgressBar
+from kivymd.uix.screen import MDScreen
 from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
-from kivymd.uix.snackbar import BaseSnackbar
+from kivymd.uix.snackbar import BaseSnackbar, Snackbar
+from kivymd.uix.spinner import MDSpinner
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.imagelist import SmartTileWithLabel
-
-if kivy.utils.platform == "android":
-    from jnius import autoclass
-    from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
-    from plyer.platforms.android import activity
-
+from plyer.platforms.android import activity
 
 kv = """
 #: import get_color_from_hex kivy.utils.get_color_from_hex
@@ -356,7 +365,8 @@ class HandWriter(MDApp):
         self.viewer = None
 
     def on_start(self):
-        self.check_internet()
+        #self.check_internet()
+        pass
 
     def check_internet(self):
         host = '8.8.8.8'
@@ -391,27 +401,6 @@ class HandWriter(MDApp):
             self.root.ids.screen_manager.transition.direction = 'right'
             self.root.ids.screen_manager.current = 'home'
         return True
-
-    def build(self):
-        self.screen = Builder.load_string(kv)
-        items = ['Open file', 'Open PDF', 'About Me']
-        menu_items = [
-            {
-                "text": f'{i}',
-                "on_release": lambda x=f'{i}': self.start_action(x)
-            } for i in items
-        ]
-        self.menu = MDDropdownMenu(
-            items=menu_items,
-            width_mult=4
-        )
-        self.menu.bind(on_release=self.callback_m)
-        return self.screen
-
-    def start_action(self, text_item):
-        self.menu.dismiss()
-        if text_item == 'About Me':
-            wb.open('https://chakradhar-63e72.web.app/')
 
     def callback_m(self, button):
         self.menu.caller = button
@@ -538,28 +527,18 @@ class HandWriter(MDApp):
         self.menu.dismiss()
         print(text_item)
         if text_item == 'About Me':
-            wb.open('https://chakradhar-63e72.web.app/')
-
-    def callback_m(self, button):
-        self.menu.caller = button
-        self.menu.open()
+        	wb.open('https://chakradhar-63e72.web.app/')
 
     def callback(self):
 
-        if kivy.utils.platform == "android":
-
-            string = autoclass('java.lang.String')
-            Intent = autoclass('android.content.Intent')
-            sendIntent = Intent()
-            sendIntent.setAction(Intent.ACTION_SEND)
-            sendIntent.setType("text/plain")
-            sendIntent.putExtra(Intent.EXTRA_TEXT, string("https://github.com/Drax-dr/handwriter"))
-            #sendIntent.setPackage("com.facebook.katana")
-            activity.startActivity(sendIntent)
-
-        else:
-            pass
-
+        string = autoclass('java.lang.String')
+        Intent = autoclass('android.content.Intent')
+        sendIntent = Intent()
+        sendIntent.setAction(Intent.ACTION_SEND)
+        sendIntent.setType("text/plain")
+        sendIntent.putExtra(Intent.EXTRA_TEXT, string("https://github.com/Drax-dr/handwriter"))
+        
+        activity.startActivity(sendIntent)
 
     def ratings(self):
         self.rating_d = MDDialog(
@@ -590,18 +569,16 @@ class HandWriter(MDApp):
 
     def on_checkbox_active(self, checkbox, value):
         if value:
-            if kivy.utils.platform == "android":
-                navbar_color('#170e15')
-                change_statusbar_color('#170e15', 'black')
+            navbar_color('#170e15')
+            change_statusbar_color('#170e15', 'black')
             self.theme_cls.theme_style = "Dark"
             self.root.ids.namee.line_color_normal = self.theme_cls.primary_light
             self.root.ids.namee.line_color_focus = self.theme_cls.primary_light
 
         else:
-            if kivy.utils.platform == "android":
-                immersive_mode()
-                navbar_color('#fcfcfc')
-                change_statusbar_color('#fcfcfc', 'white')
+            immersive_mode()
+            navbar_color('#fcfcfc')
+            change_statusbar_color('#fcfcfc', 'white')
             self.root.ids.namee.line_color_normal = get_color_from_hex("#000000")
             self.root.ids.namee.line_color_focus = get_color_from_hex("#000000")
             self.theme_cls.theme_style = "Light"
@@ -637,7 +614,7 @@ class HandWriter(MDApp):
         self.dialog.dismiss()
 
     def exit(self):
-        sys.exit()
+        sys.exit(0)
 
 if __name__ == '__main__':
     HandWriter().run()
