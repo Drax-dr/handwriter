@@ -365,8 +365,7 @@ class HandWriter(MDApp):
         self.viewer = None
 
     def on_start(self):
-        #self.check_internet()
-        pass
+        self.check_internet()
 
     def check_internet(self):
         host = '8.8.8.8'
