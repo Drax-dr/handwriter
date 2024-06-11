@@ -8,7 +8,6 @@ import sys
 from jnius import autoclass
 from kivy.clock import Clock
 from kivy.core.clipboard import Clipboard as cp
-from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import dp
@@ -41,7 +40,13 @@ from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.imagelist import SmartTileWithLabel
-from plyer.platforms.android import activity
+from kivy.utils import platform
+
+
+#FOR ANDROID PLATFORM
+if platform == "android":
+	from plyer.platforms.android import activity
+	from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
 
 kv = """
 #: import get_color_from_hex kivy.utils.get_color_from_hex
