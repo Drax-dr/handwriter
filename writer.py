@@ -594,21 +594,20 @@ class HandWriter(MDApp):
         self.root.ids.ls.clear_widgets()
         self.root.ids.screen_manager.current = 'images'
         dirs = os.listdir('.')
-	if len(dirs) == 0:
-	    self.root.ids.ls.add_widget(
+        if len(dirs) == 0:
+            self.root.ids.ls.add_widget(
                 MDLabel(text='No Images Found')
-	    )
-        for files in dirs:
-            if files.endswith('.png') or files.endswith('.jpg') or files.endswith('.jpeg'):
-                if len(files) == 0:
-                    self.root.ids.ls.add_widget(
-                        MDLabel(text='No Images Found')
-                    )
-                else:
-                    self.root.ids.ls.add_widget(
-                        SmartTileWithLabel(source=files, text=files, on_release=self.showimg)
-                    )
-
+            )
+            for files in dirs:
+                if files.endswith('.png') or files.endswith('.jpg') or files.endswith('.jpeg'):
+                    if len(files) == 0:
+                        self.root.ids.ls.add_widget(
+                            MDLabel(text='No Images Found')
+                        )
+                    else:
+                        self.root.ids.ls.add_widget(
+                            SmartTileWithLabel(source=files, text=files, on_release=self.showimg)
+                        )
     def showimg(self, obj):
         self.viewer = AKImageViewer()
         img_dirs = os.listdir('.')
