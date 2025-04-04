@@ -1,52 +1,34 @@
-import os
-import requests
 import socket
-import threading
 import time
 import webbrowser as wb
-import sys
-from jnius import autoclass
 from kivy.clock import Clock
-from kivy.core.clipboard import Clipboard as cp
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
-from kivy.utils import get_color_from_hex
-from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDRectangleFlatButton
-from kivymd.uix.label import MDLabel
-from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.textinput import TextInput
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.widget import Widget
+from kivy.utils import get_color_from_hex, platform
 from kivymd.app import MDApp
 from kivymd_extensions.akivymd.uix.imageview import AKImageViewer, AKImageViewerItem
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty, ColorProperty, ListProperty
+from kivy.properties import StringProperty
 from kivymd.toast import toast
 from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.label import MDLabel
 from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
-from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.navigationdrawer import MDNavigationDrawer
 from kivymd.uix.progressbar import MDProgressBar
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.selectioncontrol import MDCheckbox, MDSwitch
-from kivymd.uix.snackbar import BaseSnackbar, Snackbar
+from kivymd.uix.snackbar import BaseSnackbar
 from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.toolbar import MDToolbar
 from kivymd.uix.imagelist import SmartTileWithLabel
-from kivy.utils import platform
 
-
-#FOR ANDROID PLATFORM
+# FOR ANDROID PLATFORM
 if platform == "android":
-	from plyer.platforms.android import activity
-	from kvdroid.tools import change_statusbar_color, navbar_color,immersive_mode
+    from plyer.platforms.android import activity
+    from kvdroid.tools import change_statusbar_color, navbar_color, immersive_mode
 
 kv = """
 #: import get_color_from_hex kivy.utils.get_color_from_hex
